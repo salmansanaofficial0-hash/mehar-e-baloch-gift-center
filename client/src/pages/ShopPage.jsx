@@ -1,14 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Star } from 'lucide-react';
 import api from '../lib/api';
+import { categories as brandCategories } from '../config/brand';
 
 function ShopPage() {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('all');
+  const [category, setCategory] = useState(() => searchParams.get('category') || 'all');
   const [sortBy, setSortBy] = useState('featured');
+
+  useEffect(() => {
+    const param = searchParams.get('category');
+    if (param) setCategory(param);
+  }, [searchParams]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -33,7 +40,13 @@ function ShopPage() {
     }
 
     if (category !== 'all') {
-      items = items.filter((product) => product.category?._id === category || product.category?.name === category);
+      items = items.filter((product) => {
+        const cat = product.category;
+        return cat?._id === category
+          || cat?.slug === category
+          || cat?.name?.toLowerCase() === category.toLowerCase()
+          || cat?.name?.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase();
+      });
     }
 
     if (sortBy === 'price-low') items.sort((a, b) => a.price - b.price);
@@ -43,7 +56,8 @@ function ShopPage() {
     return items;
   }, [query, category, sortBy, products]);
 
-  const categories = ['all', ...new Set(products.map((product) => product.category?._id || product.category?.name).filter(Boolean))];
+  const productCategories = [...new Set(products.map((product) => product.category?.slug || product.category?.name).filter(Boolean))];
+  const categories = ['all', ...(productCategories.length ? productCategories : brandCategories.map((c) => c.slug))];
 
   return (
     <div className="section-shell py-16">
@@ -73,7 +87,7 @@ function ShopPage() {
             onClick={() => setCategory(item)}
             className={`rounded-full px-4 py-2 text-sm font-medium ${category === item ? 'bg-burgundy text-white' : 'border border-[#eadbc8] bg-white text-slate-600'}`}
           >
-            {item === 'all' ? 'All' : (products.find((product) => (product.category?._id || product.category?.name) === item)?.category?.name || item)}
+            {item === 'all' ? 'All' : (brandCategories.find((c) => c.slug === item)?.name || products.find((product) => product.category?.slug === item || product.category?.name === item)?.category?.name || item.replace(/-/g, ' '))}
           </button>
         ))}
       </div>

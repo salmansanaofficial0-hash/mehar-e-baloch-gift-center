@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Mehar-e-Baloch Gift Center API is running.' });
+  res.json({ status: 'ok', message: 'Mehr-e-Baloch Cosmetics API is running.' });
 });
 
 app.use('/api/auth', authRoutes);

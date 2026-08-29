@@ -3,9 +3,18 @@
 @tailwind utilities;
 
 :root {
+  --color-navy: #1a365d;
+  --color-navy-dark: #152a45;
+  --color-rust: #c45c26;
+  --color-gold: #c9a227;
+  --color-cream: #faf8f4;
+  --color-ivory: #fffdfb;
+  --color-border: #e8dcc8;
+  --color-border-light: #f0ebe3;
+
   font-family: 'Inter', sans-serif;
   color: #1f2937;
-  background: #f8f3ee;
+  background: var(--color-cream);
 }
 
 html {
@@ -15,7 +24,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: linear-gradient(180deg, #f8f3ee 0%, #fffdfb 100%);
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-ivory) 100%);
 }
 
 * {
@@ -32,7 +41,7 @@ img {
 }
 
 .card-luxe {
-  @apply rounded-3xl border border-[#eedec7] bg-white shadow-luxe transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl;
+  @apply rounded-3xl border border-[var(--color-border)] bg-white shadow-luxe transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl;
 }
 
 .primary-btn {
@@ -40,7 +49,7 @@ img {
 }
 
 .secondary-btn {
-  @apply inline-flex items-center justify-center rounded-full border border-burgundy bg-white px-6 py-3 text-sm font-semibold text-burgundy transition hover:bg-[#fff8f5];
+  @apply inline-flex items-center justify-center rounded-full border border-burgundy bg-white px-6 py-3 text-sm font-semibold text-burgundy transition hover:bg-[var(--color-cream)];
 }
 
 .page-title {
