@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', sans-serif;
+  color: #1f2937;
+  background: #f8f3ee;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: linear-gradient(180deg, #f8f3ee 0%, #fffdfb 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.section-shell {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.card-luxe {
+  @apply rounded-3xl border border-[#eedec7] bg-white shadow-luxe transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl;
+}
+
+.primary-btn {
+  @apply inline-flex items-center justify-center rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-white transition hover:bg-maroon;
+}
+
+.secondary-btn {
+  @apply inline-flex items-center justify-center rounded-full border border-burgundy bg-white px-6 py-3 text-sm font-semibold text-burgundy transition hover:bg-[#fff8f5];
+}
+
+.page-title {
+  @apply font-display text-4xl font-bold text-burgundy md:text-5xl;
+}
+
+.subtle-title {
+  @apply font-display text-2xl font-semibold text-burgundy;
+}
