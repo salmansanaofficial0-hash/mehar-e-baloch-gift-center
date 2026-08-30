@@ -20,8 +20,9 @@ const productSchema = new mongoose.Schema(
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     price: { type: Number, required: true },
     comparePrice: { type: Number },
+    discountPrice: { type: Number },
     stock: { type: Number, default: 0 },
-    sku: { type: String },
+    sku: { type: String, index: true },
     featured: { type: Boolean, default: false },
     bestSeller: { type: Boolean, default: false },
     images: [{ type: String }],
@@ -33,9 +34,22 @@ const productSchema = new mongoose.Schema(
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },
     reviews: [reviewSchema],
+    status: { type: String, enum: ['active', 'draft'], default: 'active', index: true },
+    variants: [
+      {
+        size: String,
+        color: String,
+        price: Number,
+        stock: Number,
+        sku: String,
+      },
+    ],
   },
   { timestamps: true }
 );
+
+productSchema.index({ category: 1 });
+productSchema.index({ tags: 1 });
 
 const Product = mongoose.model('Product', productSchema);
 
