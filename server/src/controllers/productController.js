@@ -113,7 +113,7 @@ export const getProductById = async (req, res, next) => {
 // @access  Private/Admin
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, price, comparePrice, discountPrice, stock, category, sku, tags, featured, bestSeller, variants, status } = req.body;
+    const { name, description, price, comparePrice, discountPrice, stock, category, sku, tags, featured, bestSeller, variants, status, imageUrls } = req.body;
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -123,11 +123,19 @@ export const createProduct = async (req, res, next) => {
     }
 
     // Process images if uploaded
-    const imageUrls = [];
+    let parsedImageUrls = imageUrls || [];
+    if (typeof parsedImageUrls === 'string') {
+      try {
+        parsedImageUrls = JSON.parse(parsedImageUrls);
+      } catch (error) {
+        parsedImageUrls = parsedImageUrls.split(',').map((url) => url.trim()).filter(Boolean);
+      }
+    }
+    const uploadedImageUrls = Array.isArray(parsedImageUrls) ? [...parsedImageUrls] : [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const url = await uploadToCloudinary(file.path);
-        imageUrls.push(url);
+        uploadedImageUrls.push(url);
       }
     }
 
@@ -159,7 +167,7 @@ export const createProduct = async (req, res, next) => {
       tags: parsedTags || [],
       featured: featured === 'true' || featured === true,
       bestSeller: bestSeller === 'true' || bestSeller === true,
-      images: imageUrls,
+      images: uploadedImageUrls,
       variants: parsedVariants || [],
       status: status || 'active',
     });
@@ -181,10 +189,22 @@ export const updateProduct = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    const { name, description, price, comparePrice, discountPrice, stock, category, sku, tags, featured, bestSeller, variants, status, removeImages } = req.body;
+    const { name, description, price, comparePrice, discountPrice, stock, category, sku, tags, featured, bestSeller, variants, status, removeImages, imageUrls: replacementImageUrls } = req.body;
 
     // Process new images
     const imageUrls = [...(product.images || [])];
+
+    let parsedReplacementImages = replacementImageUrls;
+    if (typeof parsedReplacementImages === 'string') {
+      try {
+        parsedReplacementImages = JSON.parse(parsedReplacementImages);
+      } catch (error) {
+        parsedReplacementImages = parsedReplacementImages.split(',').map((url) => url.trim()).filter(Boolean);
+      }
+    }
+    if (Array.isArray(parsedReplacementImages)) {
+      imageUrls.splice(0, imageUrls.length, ...parsedReplacementImages);
+    }
 
     // Remove selected images if specified
     let parsedRemoveImages = removeImages;

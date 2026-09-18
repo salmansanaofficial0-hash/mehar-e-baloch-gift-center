@@ -4,6 +4,7 @@ import { authLimiter } from '../middleware/rateLimiter.js';
 import {
   registerUser,
   loginUser,
+  loginAdmin,
   verifyEmail,
   resendVerificationCode,
   refreshAccessToken,
@@ -32,6 +33,17 @@ router.post(
     body('password').notEmpty().withMessage('Password is required'),
   ],
   loginUser
+);
+
+router.post(
+  '/admin/login',
+  authLimiter,
+  [
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').notEmpty().withMessage('Password is required'),
+    body('accessCode').isLength({ min: 6 }).withMessage('Admin access code is required'),
+  ],
+  loginAdmin
 );
 
 router.post('/verify-email', verifyEmail);

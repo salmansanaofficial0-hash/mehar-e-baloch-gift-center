@@ -6,9 +6,34 @@ import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/emailSer
 
 // Helper to generate Refresh Token
 const generateRefreshToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET || 'mehar-refresh-secret', {
+  if (!process.env.JWT_REFRESH_SECRET) throw new Error('JWT_REFRESH_SECRET is not configured');
+  return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: '30d',
   });
+};
+
+const safeEqual = (provided = '', expected = '') => {
+  const providedBuffer = Buffer.from(String(provided));
+  const expectedBuffer = Buffer.from(String(expected));
+  return providedBuffer.length === expectedBuffer.length
+    && crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+};
+
+const buildLoginResponse = async (user) => {
+  const accessToken = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isVerified: user.isVerified,
+    token: accessToken,
+    refreshToken,
+  };
 };
 
 // @desc    Register a new user
@@ -141,24 +166,50 @@ export const loginUser = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'This account has been blocked.' });
     }
 
-    const accessToken = generateToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
-
-    user.refreshToken = refreshToken;
-    await user.save();
+    if (user.role === 'admin') {
+      return res.status(403).json({ success: false, message: 'Administrators must use the secure admin login.' });
+    }
 
     res.json({
       success: true,
       message: 'Login successful',
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isVerified: user.isVerified,
-        token: accessToken,
-        refreshToken,
-      },
+      data: await buildLoginResponse(user),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Secure administrator login (email + password + private access code)
+// @route   POST /api/auth/admin/login
+// @access  Public
+export const loginAdmin = async (req, res, next) => {
+  try {
+    const { email, password, accessCode } = req.body;
+    const allowedEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const configuredCode = process.env.ADMIN_ACCESS_CODE;
+
+    if (!allowedEmail || !configuredCode) {
+      return res.status(503).json({ success: false, message: 'Administrator access is not configured on the server.' });
+    }
+
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const emailAllowed = safeEqual(normalizedEmail, allowedEmail);
+    const codeAllowed = safeEqual(accessCode, configuredCode);
+    const user = emailAllowed ? await User.findOne({ email: normalizedEmail }) : null;
+
+    if (!user || user.role !== 'admin' || !(await user.matchPassword(password)) || !codeAllowed) {
+      return res.status(401).json({ success: false, message: 'Invalid administrator credentials.' });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ success: false, message: 'This administrator account is blocked.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Administrator login successful',
+      data: await buildLoginResponse(user),
     });
   } catch (error) {
     next(error);
@@ -176,7 +227,8 @@ export const refreshAccessToken = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Refresh token is required.' });
     }
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'mehar-refresh-secret');
+    if (!process.env.JWT_REFRESH_SECRET) throw new Error('JWT_REFRESH_SECRET is not configured');
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await User.findOne({ _id: decoded.id, refreshToken });
 
     if (!user) {

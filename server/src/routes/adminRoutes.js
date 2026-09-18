@@ -12,6 +12,7 @@ import {
   updateCategory,
   deleteCategory,
 } from '../controllers/categoryController.js';
+import { getProducts } from '../controllers/productController.js';
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.use(protect, adminOnly);
 // Dashboard
 router.get('/dashboard', getDashboardStats);
 router.get('/dashboard/charts', getDashboardCharts);
+router.get('/products', getProducts);
 
 // Category CRUD
 router.post('/categories', createCategory);

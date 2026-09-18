@@ -16,7 +16,8 @@ function SignupPage() {
 
     try {
       const { data } = await api.post('/auth/register', formData);
-      login(data, data.token);
+      const user = data.data;
+      login(user, user.token);
       toast.success('Account created successfully');
       navigate('/account');
     } catch (error) {

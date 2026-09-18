@@ -7,7 +7,10 @@ export const protect = async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mehar-gift-center-secret');
+      if (!process.env.JWT_SECRET) {
+        return res.status(503).json({ message: 'Authentication is not configured on the server.' });
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
 
       if (!req.user || req.user.isBlocked) {

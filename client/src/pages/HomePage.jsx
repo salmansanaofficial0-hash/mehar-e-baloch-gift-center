@@ -6,20 +6,13 @@ import {
 } from 'lucide-react';
 import api from '../lib/api';
 import { brand, categories } from '../config/brand';
-import { featuredProducts, testimonials } from '../data/products';
-
-const fallbackProducts = featuredProducts.map((product) => ({
-  ...product,
-  _id: `featured-${product.id}`,
-  images: [product.image],
-  category: { name: product.category },
-}));
+import { testimonials } from '../data/products';
 
 function ProductCard({ product }) {
   return (
     <article className="group overflow-hidden rounded-[1.75rem] border border-[var(--color-border)] bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-luxe">
       <Link to={`/product/${product.slug}`} className="relative block overflow-hidden bg-cream">
-        <img src={product.images?.[0]} alt={product.name} className="h-72 w-full object-cover transition duration-700 group-hover:scale-105" />
+        <img src={product.images?.[0] || '/logo.png'} alt={product.name} className="h-72 w-full object-cover transition duration-700 group-hover:scale-105" />
         <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-burgundy shadow-sm">
           {product.category?.name || 'Gift'}
         </span>
@@ -43,16 +36,17 @@ function ProductCard({ product }) {
 }
 
 function HomePage() {
-  const [products, setProducts] = useState(fallbackProducts);
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     api.get('/products?featured=true')
       .then(({ data }) => {
-        if (Array.isArray(data) && data.length) setProducts(data);
+        const apiProducts = data.data?.products || [];
+        setProducts(apiProducts);
       })
-      .catch(() => {
-        // Keep the curated storefront visible when the API is waking up or unavailable.
-      });
+      .catch(() => setProducts([]))
+      .finally(() => setLoadingProducts(false));
   }, []);
 
   return (
@@ -120,9 +114,7 @@ function HomePage() {
           <div><p className="eyebrow">Customer favourites</p><h2 className="page-title mt-2">A little luxury, chosen well</h2></div>
           <Link to="/shop" className="hidden items-center gap-2 text-sm font-bold text-burgundy hover:text-rust sm:flex">Shop all <ArrowRight size={17} /></Link>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {products.slice(0, 4).map((product) => <ProductCard key={product._id} product={product} />)}
-        </div>
+        {loadingProducts ? <p className="rounded-3xl bg-white p-10 text-center text-slate-500">Loading the collection...</p> : products.length ? <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">{products.slice(0, 4).map((product) => <ProductCard key={product._id} product={product} />)}</div> : <div className="rounded-3xl border border-dashed border-[var(--color-border)] bg-white p-10 text-center"><p className="font-display text-2xl font-bold text-burgundy">New products are coming soon</p><p className="mt-2 text-slate-500">Contact us on WhatsApp for the latest available collection.</p></div>}
       </section>
 
       <section className="bg-[#f4eee2] py-20">

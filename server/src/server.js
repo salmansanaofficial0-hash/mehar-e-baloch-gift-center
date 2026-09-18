@@ -85,11 +85,16 @@ app.use('/api/payments', paymentRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Auto-create admin user on startup
+// Create the configured administrator on startup without committing credentials.
 const ensureAdminExists = async () => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@meharbaloch.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword || !process.env.ADMIN_ACCESS_CODE) {
+      console.warn('Admin access is disabled. Configure ADMIN_EMAIL, ADMIN_PASSWORD and ADMIN_ACCESS_CODE.');
+      return;
+    }
 
     const adminExists = await User.findOne({ email: adminEmail });
     if (!adminExists) {
@@ -101,6 +106,11 @@ const ensureAdminExists = async () => {
         isVerified: true,
       });
       console.log(`✓ Admin user created: ${adminEmail}`);
+    } else if (adminExists.role !== 'admin') {
+      adminExists.role = 'admin';
+      adminExists.isVerified = true;
+      await adminExists.save();
+      console.log(`✓ Admin access enabled for: ${adminEmail}`);
     } else {
       console.log('✓ Admin user already exists');
     }

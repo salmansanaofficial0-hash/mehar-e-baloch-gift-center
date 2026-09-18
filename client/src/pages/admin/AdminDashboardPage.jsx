@@ -14,8 +14,8 @@ function AdminDashboardPage() {
           api.get('/admin/products'),
         ]);
 
-        setDashboard(dashboardRes.data);
-        setProducts(productsRes.data);
+        setDashboard(dashboardRes.data.data || {});
+        setProducts(productsRes.data.data?.products || []);
       } catch (error) {
         console.error('Failed to load dashboard', error);
       } finally {
@@ -46,7 +46,7 @@ function AdminDashboardPage() {
           <>
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {[
-                ['Total Sales', `PKR ${stats.totalSales || 0}`],
+                ['Total Sales', `PKR ${stats.totalRevenue || 0}`],
                 ['Total Orders', String(stats.totalOrders || 0)],
                 ['Customers', String(stats.totalCustomers || 0)],
                 ['Products', String(stats.totalProducts || 0)],

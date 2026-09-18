@@ -16,9 +16,10 @@ function LoginPage() {
 
     try {
       const { data } = await api.post('/auth/login', formData);
-      login(data, data.token);
+      const user = data.data;
+      login(user, user.token);
       toast.success('Login successful');
-      navigate(data.role === 'admin' ? '/admin' : '/account');
+      navigate('/account');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed');
     } finally {

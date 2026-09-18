@@ -10,6 +10,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
+import AdminLoginPage from './pages/AdminLoginPage';
 import SignupPage from './pages/SignupPage';
 import AccountPage from './pages/AccountPage';
 import WishlistPage from './pages/WishlistPage';
@@ -25,7 +26,7 @@ function ProtectedRoute({ children, adminOnly = false }) {
   const { isAuthenticated, isAdmin } = useAuth();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={adminOnly ? '/admin/login' : '/login'} replace />;
   }
 
   if (adminOnly && !isAdmin) {
@@ -47,6 +48,7 @@ function AppRoutes() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route
           path="/account"

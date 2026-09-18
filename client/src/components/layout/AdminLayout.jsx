@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { BarChart3, Package, ShoppingCart, Ticket, MessageSquare, Gift, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { brand } from '../../config/brand';
@@ -6,6 +6,7 @@ import { brand } from '../../config/brand';
 function AdminLayout({ children }) {
   const location = useLocation();
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: BarChart3 },
@@ -57,7 +58,7 @@ function AdminLayout({ children }) {
 
         <div className="absolute bottom-0 left-0 right-0 border-t border-navy-light bg-navy p-4">
           <button
-            onClick={logout}
+            onClick={() => { logout(); navigate('/admin/login'); }}
             className="flex w-full items-center gap-3 rounded-lg px-4 py-3 font-medium text-red-300 transition hover:bg-navy-light"
           >
             <LogOut size={18} />
