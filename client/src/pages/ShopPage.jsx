@@ -3,10 +3,18 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Star } from 'lucide-react';
 import api from '../lib/api';
 import { categories as brandCategories } from '../config/brand';
+import { featuredProducts } from '../data/products';
+
+const fallbackProducts = featuredProducts.map((product) => ({
+  ...product,
+  _id: `featured-${product.id}`,
+  images: [product.image],
+  category: { name: product.category, slug: product.category.toLowerCase().replace(/\s+/g, '-') },
+}));
 
 function ShopPage() {
   const [searchParams] = useSearchParams();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(fallbackProducts);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState(() => searchParams.get('category') || 'all');
@@ -21,7 +29,7 @@ function ShopPage() {
     const loadProducts = async () => {
       try {
         const { data } = await api.get('/products');
-        setProducts(data);
+        if (Array.isArray(data) && data.length) setProducts(data);
       } catch (error) {
         console.error('Failed to load products', error);
       } finally {

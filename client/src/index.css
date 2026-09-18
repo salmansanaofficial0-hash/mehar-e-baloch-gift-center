@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --color-navy: #1a365d;
-  --color-navy-dark: #152a45;
-  --color-rust: #c45c26;
-  --color-gold: #c9a227;
-  --color-cream: #faf8f4;
-  --color-ivory: #fffdfb;
-  --color-border: #e8dcc8;
-  --color-border-light: #f0ebe3;
+  --color-navy: #113f46;
+  --color-navy-dark: #082b30;
+  --color-rust: #d4552d;
+  --color-gold: #d6a735;
+  --color-cream: #fbf6ec;
+  --color-ivory: #fffdf8;
+  --color-border: #e9ddc8;
+  --color-border-light: #f0e8db;
 
   font-family: 'Inter', sans-serif;
   color: #1f2937;
@@ -25,6 +25,11 @@ body {
   margin: 0;
   min-width: 320px;
   background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-ivory) 100%);
+}
+
+::selection {
+  background: #d6a735;
+  color: #082b30;
 }
 
 * {
@@ -58,4 +63,20 @@ img {
 
 .subtle-title {
   @apply font-display text-2xl font-semibold text-burgundy;
+}
+
+.balochi-pattern {
+  background-color: #082b30;
+  background-image:
+    linear-gradient(30deg, rgba(214, 167, 53, .12) 12%, transparent 12.5%, transparent 87%, rgba(214, 167, 53, .12) 87.5%, rgba(214, 167, 53, .12)),
+    linear-gradient(150deg, rgba(214, 167, 53, .12) 12%, transparent 12.5%, transparent 87%, rgba(214, 167, 53, .12) 87.5%, rgba(214, 167, 53, .12));
+  background-size: 36px 62px;
+}
+
+.eyebrow {
+  @apply text-xs font-bold uppercase tracking-[0.24em] text-rust;
+}
+
+.focus-ring {
+  @apply outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10;
 }

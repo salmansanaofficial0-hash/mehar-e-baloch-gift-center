@@ -6,9 +6,9 @@ export default {
       colors: {
         // Primary brand colors — navy, rust, cream, gold
         navy: {
-          DEFAULT: '#1a365d',
-          dark: '#152a45',
-          light: '#2a4a73',
+          DEFAULT: '#113f46',
+          dark: '#082b30',
+          light: '#25616a',
         },
         rust: {
           DEFAULT: '#c45c26',
@@ -25,8 +25,8 @@ export default {
         },
         ivory: '#fffdfb',
         // Legacy aliases — existing components use these class names
-        burgundy: '#1a365d',
-        maroon: '#152a45',
+        burgundy: '#113f46',
+        maroon: '#082b30',
         blush: '#fdf6ee',
       },
       fontFamily: {
@@ -34,7 +34,7 @@ export default {
         body: ['Inter', 'sans-serif'],
       },
       boxShadow: {
-        luxe: '0 20px 45px rgba(26, 54, 93, 0.12)',
+        luxe: '0 20px 50px rgba(8, 43, 48, 0.12)',
       },
     },
   },

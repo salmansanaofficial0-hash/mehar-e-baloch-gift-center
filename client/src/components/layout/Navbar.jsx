@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Heart, User, Menu } from 'lucide-react';
+import { ShoppingBag, Heart, User, Menu, X, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { brand } from '../../config/brand';
 
@@ -12,11 +13,17 @@ const navItems = [
 ];
 
 function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border-light)] bg-white/90 backdrop-blur-xl">
+      <div className="balochi-pattern hidden py-2 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white sm:block">
+        Visit us at New Star Plus Market, G-31, Turbat
+      </div>
       <div className="section-shell flex items-center justify-between py-3 sm:py-4">
         <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
           <img
@@ -45,10 +52,10 @@ function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button className="hidden rounded-full border border-slate-200 p-2 text-slate-600 transition hover:border-rust hover:text-rust md:inline-flex">
+          <Link to="/wishlist" aria-label="Wishlist" className="hidden rounded-full border border-slate-200 p-2 text-slate-600 transition hover:border-rust hover:text-rust md:inline-flex">
             <Heart size={18} />
-          </button>
-          <Link to="/cart" className="inline-flex rounded-full border border-slate-200 p-2 text-slate-600 transition hover:border-rust hover:text-rust">
+          </Link>
+          <Link to="/cart" aria-label="Shopping cart" className="inline-flex rounded-full border border-slate-200 p-2 text-slate-600 transition hover:border-rust hover:text-rust">
             <ShoppingBag size={18} />
           </Link>
           {isAuthenticated ? (
@@ -73,11 +80,25 @@ function Navbar() {
               <span className="hidden sm:inline">Login</span>
             </Link>
           )}
-          <button className="inline-flex rounded-full border border-slate-200 p-2 text-slate-600 md:hidden">
-            <Menu size={18} />
+          <button onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={menuOpen} className="inline-flex rounded-full border border-slate-200 p-2 text-slate-600 md:hidden">
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
+      {menuOpen && (
+        <div className="border-t border-[var(--color-border-light)] bg-white px-4 py-4 shadow-xl md:hidden">
+          <nav className="section-shell flex flex-col gap-1">
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to} onClick={closeMenu} className={({ isActive }) => `rounded-xl px-4 py-3 text-sm font-semibold ${isActive ? 'bg-cream text-burgundy' : 'text-slate-700'}`}>
+                {item.label}
+              </NavLink>
+            ))}
+            <a href={brand.primaryWhatsApp} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white">
+              <MessageCircle size={18} /> Order on WhatsApp
+            </a>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
